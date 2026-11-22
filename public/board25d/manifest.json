@@ -1,0 +1,2376 @@
+{
+  "schemaVersion": 1,
+  "width": 3200,
+  "height": 2222,
+  "pxPerMm": 15.841583880871925,
+  "pxPerMmY": 15.84000018406448,
+  "base": {
+    "width": 3200,
+    "height": 2222,
+    "file": "base-3200.webp",
+    "variants": [
+      {
+        "file": "base-3200.webp",
+        "width": 3200,
+        "height": 2222
+      },
+      {
+        "file": "base-1600.webp",
+        "width": 1600,
+        "height": 1111
+      }
+    ]
+  },
+  "items": [
+    {
+      "type": "dial",
+      "id": "RB1",
+      "label": "RB1",
+      "engineId": "RB1",
+      "x": 180,
+      "y": 267,
+      "width": 166,
+      "height": 166,
+      "file": "sprite-rb1.webp",
+      "hitPolygon": [
+        [
+          227.92840576171875,
+          314.902099609375
+        ],
+        [
+          297.63134765625,
+          314.902099609375
+        ],
+        [
+          297.63134765625,
+          384.5979919433594
+        ],
+        [
+          227.92840576171875,
+          384.5979919433594
+        ]
+      ],
+      "centerX": 262.7799987792969,
+      "centerY": 349.7499785423279,
+      "minDeg": -135,
+      "maxDeg": 135,
+      "modelDeg": -179.999991348578,
+      "spriteDeg": 0,
+      "simulationBinding": "visual-only"
+    },
+    {
+      "type": "dial",
+      "id": "RB2",
+      "label": "RB2",
+      "engineId": "RB2",
+      "x": 2195,
+      "y": 1545,
+      "width": 165,
+      "height": 166,
+      "file": "sprite-rb2.webp",
+      "hitPolygon": [
+        [
+          2242.626708984375,
+          1593.48193359375
+        ],
+        [
+          2312.32958984375,
+          1593.48193359375
+        ],
+        [
+          2312.32958984375,
+          1663.1778564453125
+        ],
+        [
+          2242.626708984375,
+          1663.1778564453125
+        ]
+      ],
+      "centerX": 2277.4782180786133,
+      "centerY": 1628.329890191555,
+      "minDeg": -135,
+      "maxDeg": 135,
+      "modelDeg": 0,
+      "spriteDeg": 0
+    },
+    {
+      "type": "dial",
+      "id": "RB3",
+      "label": "RB3",
+      "engineId": "RB3",
+      "x": 2436,
+      "y": 1545,
+      "width": 166,
+      "height": 166,
+      "file": "sprite-rb3.webp",
+      "hitPolygon": [
+        [
+          2484.052490234375,
+          1593.48193359375
+        ],
+        [
+          2553.75537109375,
+          1593.48193359375
+        ],
+        [
+          2553.75537109375,
+          1663.1778564453125
+        ],
+        [
+          2484.052490234375,
+          1663.1778564453125
+        ]
+      ],
+      "centerX": 2518.903923034668,
+      "centerY": 1628.329890191555,
+      "minDeg": -135,
+      "maxDeg": 135,
+      "modelDeg": 0,
+      "spriteDeg": 0
+    },
+    {
+      "type": "dial",
+      "id": "RB4",
+      "label": "RB4",
+      "engineId": "RB4",
+      "x": 2677,
+      "y": 1545,
+      "width": 166,
+      "height": 166,
+      "file": "sprite-rb4.webp",
+      "hitPolygon": [
+        [
+          2725.478271484375,
+          1593.48193359375
+        ],
+        [
+          2795.18115234375,
+          1593.48193359375
+        ],
+        [
+          2795.18115234375,
+          1663.1778564453125
+        ],
+        [
+          2725.478271484375,
+          1663.1778564453125
+        ]
+      ],
+      "centerX": 2760.3296279907227,
+      "centerY": 1628.329890191555,
+      "minDeg": -135,
+      "maxDeg": 135,
+      "modelDeg": 0,
+      "spriteDeg": 0,
+      "simulationBinding": "visual-only"
+    },
+    {
+      "type": "jumper",
+      "id": "J13",
+      "label": "J13",
+      "engineId": "J13",
+      "x": 765,
+      "y": 1047,
+      "width": 121,
+      "height": 169,
+      "hitPolygon": [
+        [
+          765,
+          1047
+        ],
+        [
+          886,
+          1047
+        ],
+        [
+          886,
+          1216
+        ],
+        [
+          765,
+          1216
+        ]
+      ],
+      "defaultPosition": "IO",
+      "positions": {
+        "IO": {
+          "file": "sprite-j13-io.webp",
+          "x": 765,
+          "y": 1047,
+          "width": 121,
+          "height": 169
+        },
+        "MM": {
+          "file": "sprite-j13-mm.webp",
+          "x": 765,
+          "y": 1047,
+          "width": 121,
+          "height": 169
+        }
+      }
+    },
+    {
+      "type": "jumper",
+      "id": "J2",
+      "label": "J2",
+      "engineId": "J2",
+      "x": 1742,
+      "y": 330,
+      "width": 216,
+      "height": 177,
+      "hitPolygon": [
+        [
+          1742,
+          330
+        ],
+        [
+          1958,
+          330
+        ],
+        [
+          1958,
+          507
+        ],
+        [
+          1742,
+          507
+        ]
+      ],
+      "defaultPosition": "US",
+      "positions": {
+        "US": {
+          "file": "sprite-j2-us.webp",
+          "x": 1742,
+          "y": 330,
+          "width": 216,
+          "height": 177
+        },
+        "IR": {
+          "file": "sprite-j2-ir.webp",
+          "x": 1742,
+          "y": 330,
+          "width": 216,
+          "height": 177
+        }
+      }
+    },
+    {
+      "type": "jumper",
+      "id": "J3",
+      "label": "J3",
+      "engineId": "J3",
+      "x": 2861,
+      "y": 1328,
+      "width": 177,
+      "height": 176,
+      "hitPolygon": [
+        [
+          2861,
+          1328
+        ],
+        [
+          3038,
+          1328
+        ],
+        [
+          3038,
+          1504
+        ],
+        [
+          2861,
+          1504
+        ]
+      ],
+      "defaultPosition": "NE555_OFF",
+      "positions": {
+        "NE555_ON": {
+          "file": "sprite-j3-ne555_on.webp",
+          "x": 2861,
+          "y": 1328,
+          "width": 177,
+          "height": 176
+        },
+        "NE555_OFF": {
+          "file": "sprite-j3-ne555_off.webp",
+          "x": 2861,
+          "y": 1328,
+          "width": 177,
+          "height": 176
+        }
+      }
+    },
+    {
+      "type": "jumper",
+      "id": "J5",
+      "label": "J5",
+      "engineId": "J5",
+      "x": 874,
+      "y": 1977,
+      "width": 169,
+      "height": 122,
+      "hitPolygon": [
+        [
+          874,
+          1977
+        ],
+        [
+          1043,
+          1977
+        ],
+        [
+          1043,
+          2099
+        ],
+        [
+          874,
+          2099
+        ]
+      ],
+      "defaultPosition": "BTN",
+      "positions": {
+        "KBD": {
+          "file": "sprite-j5-kbd.webp",
+          "x": 874,
+          "y": 1977,
+          "width": 169,
+          "height": 122
+        },
+        "BTN": {
+          "file": "sprite-j5-btn.webp",
+          "x": 874,
+          "y": 1977,
+          "width": 169,
+          "height": 122
+        }
+      }
+    },
+    {
+      "type": "jumper",
+      "id": "J6",
+      "label": "J6",
+      "engineId": "J6",
+      "x": 1880,
+      "y": 1131,
+      "width": 169,
+      "height": 121,
+      "hitPolygon": [
+        [
+          1880,
+          1131
+        ],
+        [
+          2049,
+          1131
+        ],
+        [
+          2049,
+          1252
+        ],
+        [
+          1880,
+          1252
+        ]
+      ],
+      "defaultPosition": "ON",
+      "positions": {
+        "ON": {
+          "file": "sprite-j6-on.webp",
+          "x": 1880,
+          "y": 1131,
+          "width": 169,
+          "height": 121
+        },
+        "OFF": {
+          "file": "sprite-j6-off.webp",
+          "x": 1880,
+          "y": 1131,
+          "width": 169,
+          "height": 121
+        }
+      }
+    },
+    {
+      "type": "key",
+      "id": "S1",
+      "label": "S1",
+      "engineId": "S1",
+      "x": 944,
+      "y": 1521,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s1-pressed.webp",
+      "hitPolygon": [
+        [
+          960.0869140625,
+          1510.1854248046875
+        ],
+        [
+          1044.045166015625,
+          1510.1854248046875
+        ],
+        [
+          1049.5908203125,
+          1531.8878173828125
+        ],
+        [
+          1049.5908203125,
+          1626.9278564453125
+        ],
+        [
+          1044.045166015625,
+          1648.626708984375
+        ],
+        [
+          960.0869140625,
+          1648.626708984375
+        ],
+        [
+          954.5413208007812,
+          1626.9278564453125
+        ],
+        [
+          954.5413208007812,
+          1531.8878173828125
+        ]
+      ],
+      "role": "reset"
+    },
+    {
+      "type": "key",
+      "id": "S10",
+      "label": "S10",
+      "engineId": "S9",
+      "x": 427,
+      "y": 1668,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s10-pressed.webp",
+      "hitPolygon": [
+        [
+          437.3671875,
+          1678.338134765625
+        ],
+        [
+          532.4166259765625,
+          1678.338134765625
+        ],
+        [
+          554.1212158203125,
+          1683.8831787109375
+        ],
+        [
+          554.1212158203125,
+          1767.8331298828125
+        ],
+        [
+          532.4166259765625,
+          1773.378173828125
+        ],
+        [
+          437.3671875,
+          1773.378173828125
+        ],
+        [
+          415.666015625,
+          1767.8331298828125
+        ],
+        [
+          415.666015625,
+          1683.8831787109375
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S11",
+      "label": "S11",
+      "engineId": "S10",
+      "x": 427,
+      "y": 1486,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s11-pressed.webp",
+      "hitPolygon": [
+        [
+          437.3671875,
+          1497.2869873046875
+        ],
+        [
+          532.4166259765625,
+          1497.2869873046875
+        ],
+        [
+          554.1212158203125,
+          1502.83203125
+        ],
+        [
+          554.1212158203125,
+          1586.7818603515625
+        ],
+        [
+          532.4166259765625,
+          1592.3270263671875
+        ],
+        [
+          437.3671875,
+          1592.3270263671875
+        ],
+        [
+          415.666015625,
+          1586.7818603515625
+        ],
+        [
+          415.666015625,
+          1502.83203125
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S12",
+      "label": "S12",
+      "engineId": "S11",
+      "x": 427,
+      "y": 1305,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s12-pressed.webp",
+      "hitPolygon": [
+        [
+          437.3671875,
+          1316.2357177734375
+        ],
+        [
+          532.4166259765625,
+          1316.2357177734375
+        ],
+        [
+          554.1212158203125,
+          1321.78076171875
+        ],
+        [
+          554.1212158203125,
+          1405.730712890625
+        ],
+        [
+          532.4166259765625,
+          1411.2757568359375
+        ],
+        [
+          437.3671875,
+          1411.2757568359375
+        ],
+        [
+          415.666015625,
+          1405.730712890625
+        ],
+        [
+          415.666015625,
+          1321.78076171875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S13",
+      "label": "S13",
+      "engineId": "S12",
+      "x": 608,
+      "y": 1849,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s13-pressed.webp",
+      "hitPolygon": [
+        [
+          618.4364624023438,
+          1859.389404296875
+        ],
+        [
+          713.4859008789062,
+          1859.389404296875
+        ],
+        [
+          735.1905517578125,
+          1864.9344482421875
+        ],
+        [
+          735.1905517578125,
+          1948.88427734375
+        ],
+        [
+          713.4859008789062,
+          1954.4293212890625
+        ],
+        [
+          618.4364624023438,
+          1954.4293212890625
+        ],
+        [
+          596.7353515625,
+          1948.88427734375
+        ],
+        [
+          596.7353515625,
+          1864.9344482421875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S14",
+      "label": "S14",
+      "engineId": "S13",
+      "x": 608,
+      "y": 1668,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s14-pressed.webp",
+      "hitPolygon": [
+        [
+          618.4364624023438,
+          1678.338134765625
+        ],
+        [
+          713.4859008789062,
+          1678.338134765625
+        ],
+        [
+          735.1905517578125,
+          1683.8831787109375
+        ],
+        [
+          735.1905517578125,
+          1767.8331298828125
+        ],
+        [
+          713.4859008789062,
+          1773.378173828125
+        ],
+        [
+          618.4364624023438,
+          1773.378173828125
+        ],
+        [
+          596.7353515625,
+          1767.8331298828125
+        ],
+        [
+          596.7353515625,
+          1683.8831787109375
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S15",
+      "label": "S15",
+      "engineId": "S14",
+      "x": 608,
+      "y": 1486,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s15-pressed.webp",
+      "hitPolygon": [
+        [
+          618.4364624023438,
+          1497.2869873046875
+        ],
+        [
+          713.4859008789062,
+          1497.2869873046875
+        ],
+        [
+          735.1905517578125,
+          1502.83203125
+        ],
+        [
+          735.1905517578125,
+          1586.7818603515625
+        ],
+        [
+          713.4859008789062,
+          1592.3270263671875
+        ],
+        [
+          618.4364624023438,
+          1592.3270263671875
+        ],
+        [
+          596.7353515625,
+          1586.7818603515625
+        ],
+        [
+          596.7353515625,
+          1502.83203125
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S16",
+      "label": "S16",
+      "engineId": "S15",
+      "x": 608,
+      "y": 1305,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s16-pressed.webp",
+      "hitPolygon": [
+        [
+          618.4364624023438,
+          1316.2357177734375
+        ],
+        [
+          713.4859008789062,
+          1316.2357177734375
+        ],
+        [
+          735.1905517578125,
+          1321.78076171875
+        ],
+        [
+          735.1905517578125,
+          1405.730712890625
+        ],
+        [
+          713.4859008789062,
+          1411.2757568359375
+        ],
+        [
+          618.4364624023438,
+          1411.2757568359375
+        ],
+        [
+          596.7353515625,
+          1405.730712890625
+        ],
+        [
+          596.7353515625,
+          1321.78076171875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S17",
+      "label": "S17",
+      "engineId": "S16",
+      "x": 789,
+      "y": 1849,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s17-pressed.webp",
+      "hitPolygon": [
+        [
+          799.5057983398438,
+          1859.389404296875
+        ],
+        [
+          894.5552978515625,
+          1859.389404296875
+        ],
+        [
+          916.2599487304688,
+          1864.9344482421875
+        ],
+        [
+          916.2599487304688,
+          1948.88427734375
+        ],
+        [
+          894.5552978515625,
+          1954.4293212890625
+        ],
+        [
+          799.5057983398438,
+          1954.4293212890625
+        ],
+        [
+          777.8046875,
+          1948.88427734375
+        ],
+        [
+          777.8046875,
+          1864.9344482421875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S18",
+      "label": "S18",
+      "engineId": "S17",
+      "x": 789,
+      "y": 1668,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s18-pressed.webp",
+      "hitPolygon": [
+        [
+          799.5057983398438,
+          1678.338134765625
+        ],
+        [
+          894.5552978515625,
+          1678.338134765625
+        ],
+        [
+          916.2599487304688,
+          1683.8831787109375
+        ],
+        [
+          916.2599487304688,
+          1767.8331298828125
+        ],
+        [
+          894.5552978515625,
+          1773.378173828125
+        ],
+        [
+          799.5057983398438,
+          1773.378173828125
+        ],
+        [
+          777.8046875,
+          1767.8331298828125
+        ],
+        [
+          777.8046875,
+          1683.8831787109375
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S19",
+      "label": "S19",
+      "engineId": "S18",
+      "x": 789,
+      "y": 1486,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s19-pressed.webp",
+      "hitPolygon": [
+        [
+          799.5057983398438,
+          1497.2869873046875
+        ],
+        [
+          894.5552978515625,
+          1497.2869873046875
+        ],
+        [
+          916.2599487304688,
+          1502.83203125
+        ],
+        [
+          916.2599487304688,
+          1586.7818603515625
+        ],
+        [
+          894.5552978515625,
+          1592.3270263671875
+        ],
+        [
+          799.5057983398438,
+          1592.3270263671875
+        ],
+        [
+          777.8046875,
+          1586.7818603515625
+        ],
+        [
+          777.8046875,
+          1502.83203125
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S20",
+      "label": "S20",
+      "engineId": "S19",
+      "x": 789,
+      "y": 1305,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s20-pressed.webp",
+      "hitPolygon": [
+        [
+          799.5057983398438,
+          1316.2357177734375
+        ],
+        [
+          894.5552978515625,
+          1316.2357177734375
+        ],
+        [
+          916.2599487304688,
+          1321.78076171875
+        ],
+        [
+          916.2599487304688,
+          1405.730712890625
+        ],
+        [
+          894.5552978515625,
+          1411.2757568359375
+        ],
+        [
+          799.5057983398438,
+          1411.2757568359375
+        ],
+        [
+          777.8046875,
+          1405.730712890625
+        ],
+        [
+          777.8046875,
+          1321.78076171875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S4",
+      "label": "S4",
+      "engineId": "S4",
+      "x": 246,
+      "y": 1849,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s4-pressed.webp",
+      "hitPolygon": [
+        [
+          256.2978515625,
+          1859.389404296875
+        ],
+        [
+          351.3472900390625,
+          1859.389404296875
+        ],
+        [
+          373.0518798828125,
+          1864.9344482421875
+        ],
+        [
+          373.0518798828125,
+          1948.88427734375
+        ],
+        [
+          351.3472900390625,
+          1954.4293212890625
+        ],
+        [
+          256.2978515625,
+          1954.4293212890625
+        ],
+        [
+          234.5968017578125,
+          1948.88427734375
+        ],
+        [
+          234.5968017578125,
+          1864.9344482421875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S6",
+      "label": "S6",
+      "engineId": "S5",
+      "x": 246,
+      "y": 1668,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s6-pressed.webp",
+      "hitPolygon": [
+        [
+          256.2978515625,
+          1678.338134765625
+        ],
+        [
+          351.3472900390625,
+          1678.338134765625
+        ],
+        [
+          373.0518798828125,
+          1683.8831787109375
+        ],
+        [
+          373.0518798828125,
+          1767.8331298828125
+        ],
+        [
+          351.3472900390625,
+          1773.378173828125
+        ],
+        [
+          256.2978515625,
+          1773.378173828125
+        ],
+        [
+          234.5968017578125,
+          1767.8331298828125
+        ],
+        [
+          234.5968017578125,
+          1683.8831787109375
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S7",
+      "label": "S7",
+      "engineId": "S6",
+      "x": 246,
+      "y": 1486,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s7-pressed.webp",
+      "hitPolygon": [
+        [
+          256.2978515625,
+          1497.2869873046875
+        ],
+        [
+          351.3472900390625,
+          1497.2869873046875
+        ],
+        [
+          373.0518798828125,
+          1502.83203125
+        ],
+        [
+          373.0518798828125,
+          1586.7818603515625
+        ],
+        [
+          351.3472900390625,
+          1592.3270263671875
+        ],
+        [
+          256.2978515625,
+          1592.3270263671875
+        ],
+        [
+          234.5968017578125,
+          1586.7818603515625
+        ],
+        [
+          234.5968017578125,
+          1502.83203125
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S8",
+      "label": "S8",
+      "engineId": "S7",
+      "x": 246,
+      "y": 1305,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s8-pressed.webp",
+      "hitPolygon": [
+        [
+          256.2978515625,
+          1316.2357177734375
+        ],
+        [
+          351.3472900390625,
+          1316.2357177734375
+        ],
+        [
+          373.0518798828125,
+          1321.78076171875
+        ],
+        [
+          373.0518798828125,
+          1405.730712890625
+        ],
+        [
+          351.3472900390625,
+          1411.2757568359375
+        ],
+        [
+          256.2978515625,
+          1411.2757568359375
+        ],
+        [
+          234.5968017578125,
+          1405.730712890625
+        ],
+        [
+          234.5968017578125,
+          1321.78076171875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "key",
+      "id": "S9",
+      "label": "S9",
+      "engineId": "S8",
+      "x": 427,
+      "y": 1849,
+      "width": 116,
+      "height": 116,
+      "pressedFile": "sprite-s9-pressed.webp",
+      "hitPolygon": [
+        [
+          437.3671875,
+          1859.389404296875
+        ],
+        [
+          532.4166259765625,
+          1859.389404296875
+        ],
+        [
+          554.1212158203125,
+          1864.9344482421875
+        ],
+        [
+          554.1212158203125,
+          1948.88427734375
+        ],
+        [
+          532.4166259765625,
+          1954.4293212890625
+        ],
+        [
+          437.3671875,
+          1954.4293212890625
+        ],
+        [
+          415.666015625,
+          1948.88427734375
+        ],
+        [
+          415.666015625,
+          1864.9344482421875
+        ]
+      ],
+      "role": "matrix"
+    },
+    {
+      "type": "ldr",
+      "id": "RD1",
+      "label": "RD1",
+      "engineId": "RD1",
+      "x": 2229,
+      "y": 2033,
+      "width": 82,
+      "height": 23,
+      "hitPolygon": [
+        [
+          2243.621337890625,
+          2033.1763916015625
+        ],
+        [
+          2296.84912109375,
+          2033.1763916015625
+        ],
+        [
+          2310.631103515625,
+          2035.47314453125
+        ],
+        [
+          2310.631103515625,
+          2055.273193359375
+        ],
+        [
+          2229.839111328125,
+          2055.273193359375
+        ],
+        [
+          2229.839111328125,
+          2035.47314453125
+        ]
+      ]
+    },
+    {
+      "type": "led",
+      "id": "L1",
+      "label": "L1",
+      "engineId": "L1",
+      "x": 891,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l1.webp",
+      "index": 0,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L10",
+      "label": "L10",
+      "engineId": "L10",
+      "x": 2704,
+      "y": 1140,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l10.webp",
+      "index": 9,
+      "role": "indicator"
+    },
+    {
+      "type": "led",
+      "id": "L11",
+      "label": "L11",
+      "engineId": "L11",
+      "x": 245,
+      "y": 1113,
+      "width": 31,
+      "height": 30,
+      "file": "sprite-l11.webp",
+      "index": 10,
+      "role": "indicator"
+    },
+    {
+      "type": "led",
+      "id": "L12",
+      "label": "L12",
+      "engineId": "L12",
+      "x": 245,
+      "y": 1155,
+      "width": 31,
+      "height": 29,
+      "file": "sprite-l12.webp",
+      "index": 11,
+      "role": "indicator"
+    },
+    {
+      "type": "led",
+      "id": "L2",
+      "label": "L2",
+      "engineId": "L2",
+      "x": 951,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l2.webp",
+      "index": 1,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L3",
+      "label": "L3",
+      "engineId": "L3",
+      "x": 1012,
+      "y": 794,
+      "width": 29,
+      "height": 31,
+      "file": "sprite-l3.webp",
+      "index": 2,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L4",
+      "label": "L4",
+      "engineId": "L4",
+      "x": 1072,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l4.webp",
+      "index": 3,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L5",
+      "label": "L5",
+      "engineId": "L5",
+      "x": 1132,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l5.webp",
+      "index": 4,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L6",
+      "label": "L6",
+      "engineId": "L6",
+      "x": 1193,
+      "y": 794,
+      "width": 29,
+      "height": 31,
+      "file": "sprite-l6.webp",
+      "index": 5,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L7",
+      "label": "L7",
+      "engineId": "L7",
+      "x": 1253,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l7.webp",
+      "index": 6,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L8",
+      "label": "L8",
+      "engineId": "L8",
+      "x": 1313,
+      "y": 794,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-l8.webp",
+      "index": 7,
+      "role": "output"
+    },
+    {
+      "type": "led",
+      "id": "L9",
+      "label": "L9",
+      "engineId": "L9",
+      "x": 238,
+      "y": 905,
+      "width": 31,
+      "height": 30,
+      "file": "sprite-l9.webp",
+      "index": 8,
+      "role": "indicator"
+    },
+    {
+      "type": "obstacle",
+      "id": "obstacle",
+      "label": "Cardboard obstacle",
+      "engineId": "distance",
+      "x": 1707,
+      "y": 0,
+      "width": 286,
+      "height": 161,
+      "file": "sprite-obstacle.webp",
+      "centerX": 1849.9778747558594,
+      "centerY": 65.560009598732,
+      "track": {
+        "start": [
+          1849.9778747558594,
+          271.47995352745056
+        ],
+        "end": [
+          1849.9778747558594,
+          65.560009598732
+        ]
+      }
+    },
+    {
+      "type": "power",
+      "id": "S2",
+      "label": "S2",
+      "engineId": "S2",
+      "x": 229,
+      "y": 942,
+      "width": 116,
+      "height": 117,
+      "pressedFile": "sprite-s2-pressed.webp",
+      "hitPolygon": [
+        [
+          239.39810180664062,
+          953.2928466796875
+        ],
+        [
+          334.4475402832031,
+          953.2928466796875
+        ],
+        [
+          356.1485900878906,
+          958.8379516601562
+        ],
+        [
+          356.1487121582031,
+          1030.1158447265625
+        ],
+        [
+          356.1487121582031,
+          1042.787841796875
+        ],
+        [
+          334.4475402832031,
+          1048.3328857421875
+        ],
+        [
+          239.39810180664062,
+          1048.3328857421875
+        ],
+        [
+          217.69349670410156,
+          1042.787841796875
+        ],
+        [
+          217.69337463378906,
+          971.5099487304688
+        ],
+        [
+          217.69337463378906,
+          958.8379516601562
+        ]
+      ],
+      "role": "power"
+    },
+    {
+      "type": "segment",
+      "id": "digit1.a",
+      "label": "digit1.a",
+      "engineId": "digit1.a",
+      "x": 1403,
+      "y": 531,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit1-a.webp",
+      "digit": 1,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit1.b",
+      "label": "digit1.b",
+      "engineId": "digit1.b",
+      "x": 1456,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit1-b.webp",
+      "digit": 1,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit1.c",
+      "label": "digit1.c",
+      "engineId": "digit1.c",
+      "x": 1456,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit1-c.webp",
+      "digit": 1,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit1.d",
+      "label": "digit1.d",
+      "engineId": "digit1.d",
+      "x": 1403,
+      "y": 657,
+      "width": 73,
+      "height": 28,
+      "file": "sprite-digit1-d.webp",
+      "digit": 1,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit1.dp",
+      "label": "digit1.dp",
+      "engineId": "digit1.dp",
+      "x": 1470,
+      "y": 657,
+      "width": 31,
+      "height": 31,
+      "file": "sprite-digit1-dp.webp",
+      "digit": 1,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit1.e",
+      "label": "digit1.e",
+      "engineId": "digit1.e",
+      "x": 1392,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit1-e.webp",
+      "digit": 1,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit1.f",
+      "label": "digit1.f",
+      "engineId": "digit1.f",
+      "x": 1392,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit1-f.webp",
+      "digit": 1,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit1.g",
+      "label": "digit1.g",
+      "engineId": "digit1.g",
+      "x": 1403,
+      "y": 594,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit1-g.webp",
+      "digit": 1,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit2.a",
+      "label": "digit2.a",
+      "engineId": "digit2.a",
+      "x": 1517,
+      "y": 531,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit2-a.webp",
+      "digit": 2,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit2.b",
+      "label": "digit2.b",
+      "engineId": "digit2.b",
+      "x": 1570,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit2-b.webp",
+      "digit": 2,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit2.c",
+      "label": "digit2.c",
+      "engineId": "digit2.c",
+      "x": 1570,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit2-c.webp",
+      "digit": 2,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit2.d",
+      "label": "digit2.d",
+      "engineId": "digit2.d",
+      "x": 1517,
+      "y": 657,
+      "width": 73,
+      "height": 28,
+      "file": "sprite-digit2-d.webp",
+      "digit": 2,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit2.dp",
+      "label": "digit2.dp",
+      "engineId": "digit2.dp",
+      "x": 1584,
+      "y": 657,
+      "width": 31,
+      "height": 31,
+      "file": "sprite-digit2-dp.webp",
+      "digit": 2,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit2.e",
+      "label": "digit2.e",
+      "engineId": "digit2.e",
+      "x": 1506,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit2-e.webp",
+      "digit": 2,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit2.f",
+      "label": "digit2.f",
+      "engineId": "digit2.f",
+      "x": 1506,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit2-f.webp",
+      "digit": 2,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit2.g",
+      "label": "digit2.g",
+      "engineId": "digit2.g",
+      "x": 1517,
+      "y": 594,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit2-g.webp",
+      "digit": 2,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit3.a",
+      "label": "digit3.a",
+      "engineId": "digit3.a",
+      "x": 1631,
+      "y": 531,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit3-a.webp",
+      "digit": 3,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit3.b",
+      "label": "digit3.b",
+      "engineId": "digit3.b",
+      "x": 1684,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit3-b.webp",
+      "digit": 3,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit3.c",
+      "label": "digit3.c",
+      "engineId": "digit3.c",
+      "x": 1684,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit3-c.webp",
+      "digit": 3,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit3.d",
+      "label": "digit3.d",
+      "engineId": "digit3.d",
+      "x": 1631,
+      "y": 657,
+      "width": 73,
+      "height": 28,
+      "file": "sprite-digit3-d.webp",
+      "digit": 3,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit3.dp",
+      "label": "digit3.dp",
+      "engineId": "digit3.dp",
+      "x": 1698,
+      "y": 657,
+      "width": 31,
+      "height": 31,
+      "file": "sprite-digit3-dp.webp",
+      "digit": 3,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit3.e",
+      "label": "digit3.e",
+      "engineId": "digit3.e",
+      "x": 1620,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit3-e.webp",
+      "digit": 3,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit3.f",
+      "label": "digit3.f",
+      "engineId": "digit3.f",
+      "x": 1620,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit3-f.webp",
+      "digit": 3,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit3.g",
+      "label": "digit3.g",
+      "engineId": "digit3.g",
+      "x": 1631,
+      "y": 594,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit3-g.webp",
+      "digit": 3,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit4.a",
+      "label": "digit4.a",
+      "engineId": "digit4.a",
+      "x": 1745,
+      "y": 531,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit4-a.webp",
+      "digit": 4,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit4.b",
+      "label": "digit4.b",
+      "engineId": "digit4.b",
+      "x": 1798,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit4-b.webp",
+      "digit": 4,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit4.c",
+      "label": "digit4.c",
+      "engineId": "digit4.c",
+      "x": 1798,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit4-c.webp",
+      "digit": 4,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit4.d",
+      "label": "digit4.d",
+      "engineId": "digit4.d",
+      "x": 1745,
+      "y": 657,
+      "width": 73,
+      "height": 28,
+      "file": "sprite-digit4-d.webp",
+      "digit": 4,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit4.dp",
+      "label": "digit4.dp",
+      "engineId": "digit4.dp",
+      "x": 1812,
+      "y": 657,
+      "width": 31,
+      "height": 31,
+      "file": "sprite-digit4-dp.webp",
+      "digit": 4,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit4.e",
+      "label": "digit4.e",
+      "engineId": "digit4.e",
+      "x": 1735,
+      "y": 606,
+      "width": 30,
+      "height": 66,
+      "file": "sprite-digit4-e.webp",
+      "digit": 4,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit4.f",
+      "label": "digit4.f",
+      "engineId": "digit4.f",
+      "x": 1735,
+      "y": 543,
+      "width": 30,
+      "height": 66,
+      "file": "sprite-digit4-f.webp",
+      "digit": 4,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit4.g",
+      "label": "digit4.g",
+      "engineId": "digit4.g",
+      "x": 1745,
+      "y": 594,
+      "width": 73,
+      "height": 27,
+      "file": "sprite-digit4-g.webp",
+      "digit": 4,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit5.a",
+      "label": "digit5.a",
+      "engineId": "digit5.a",
+      "x": 1882,
+      "y": 531,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit5-a.webp",
+      "digit": 5,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit5.b",
+      "label": "digit5.b",
+      "engineId": "digit5.b",
+      "x": 1935,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit5-b.webp",
+      "digit": 5,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit5.c",
+      "label": "digit5.c",
+      "engineId": "digit5.c",
+      "x": 1935,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit5-c.webp",
+      "digit": 5,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit5.d",
+      "label": "digit5.d",
+      "engineId": "digit5.d",
+      "x": 1882,
+      "y": 657,
+      "width": 74,
+      "height": 28,
+      "file": "sprite-digit5-d.webp",
+      "digit": 5,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit5.dp",
+      "label": "digit5.dp",
+      "engineId": "digit5.dp",
+      "x": 1949,
+      "y": 657,
+      "width": 31,
+      "height": 31,
+      "file": "sprite-digit5-dp.webp",
+      "digit": 5,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit5.e",
+      "label": "digit5.e",
+      "engineId": "digit5.e",
+      "x": 1872,
+      "y": 606,
+      "width": 30,
+      "height": 66,
+      "file": "sprite-digit5-e.webp",
+      "digit": 5,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit5.f",
+      "label": "digit5.f",
+      "engineId": "digit5.f",
+      "x": 1872,
+      "y": 543,
+      "width": 30,
+      "height": 66,
+      "file": "sprite-digit5-f.webp",
+      "digit": 5,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit5.g",
+      "label": "digit5.g",
+      "engineId": "digit5.g",
+      "x": 1882,
+      "y": 594,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit5-g.webp",
+      "digit": 5,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit6.a",
+      "label": "digit6.a",
+      "engineId": "digit6.a",
+      "x": 1996,
+      "y": 531,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit6-a.webp",
+      "digit": 6,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit6.b",
+      "label": "digit6.b",
+      "engineId": "digit6.b",
+      "x": 2049,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit6-b.webp",
+      "digit": 6,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit6.c",
+      "label": "digit6.c",
+      "engineId": "digit6.c",
+      "x": 2049,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit6-c.webp",
+      "digit": 6,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit6.d",
+      "label": "digit6.d",
+      "engineId": "digit6.d",
+      "x": 1996,
+      "y": 657,
+      "width": 74,
+      "height": 28,
+      "file": "sprite-digit6-d.webp",
+      "digit": 6,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit6.dp",
+      "label": "digit6.dp",
+      "engineId": "digit6.dp",
+      "x": 2064,
+      "y": 657,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-digit6-dp.webp",
+      "digit": 6,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit6.e",
+      "label": "digit6.e",
+      "engineId": "digit6.e",
+      "x": 1986,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit6-e.webp",
+      "digit": 6,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit6.f",
+      "label": "digit6.f",
+      "engineId": "digit6.f",
+      "x": 1986,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit6-f.webp",
+      "digit": 6,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit6.g",
+      "label": "digit6.g",
+      "engineId": "digit6.g",
+      "x": 1996,
+      "y": 594,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit6-g.webp",
+      "digit": 6,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit7.a",
+      "label": "digit7.a",
+      "engineId": "digit7.a",
+      "x": 2110,
+      "y": 531,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit7-a.webp",
+      "digit": 7,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit7.b",
+      "label": "digit7.b",
+      "engineId": "digit7.b",
+      "x": 2163,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit7-b.webp",
+      "digit": 7,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit7.c",
+      "label": "digit7.c",
+      "engineId": "digit7.c",
+      "x": 2163,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit7-c.webp",
+      "digit": 7,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit7.d",
+      "label": "digit7.d",
+      "engineId": "digit7.d",
+      "x": 2110,
+      "y": 657,
+      "width": 74,
+      "height": 28,
+      "file": "sprite-digit7-d.webp",
+      "digit": 7,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit7.dp",
+      "label": "digit7.dp",
+      "engineId": "digit7.dp",
+      "x": 2178,
+      "y": 657,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-digit7-dp.webp",
+      "digit": 7,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit7.e",
+      "label": "digit7.e",
+      "engineId": "digit7.e",
+      "x": 2100,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit7-e.webp",
+      "digit": 7,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit7.f",
+      "label": "digit7.f",
+      "engineId": "digit7.f",
+      "x": 2100,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit7-f.webp",
+      "digit": 7,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit7.g",
+      "label": "digit7.g",
+      "engineId": "digit7.g",
+      "x": 2110,
+      "y": 594,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit7-g.webp",
+      "digit": 7,
+      "bit": 6
+    },
+    {
+      "type": "segment",
+      "id": "digit8.a",
+      "label": "digit8.a",
+      "engineId": "digit8.a",
+      "x": 2224,
+      "y": 531,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit8-a.webp",
+      "digit": 8,
+      "bit": 0
+    },
+    {
+      "type": "segment",
+      "id": "digit8.b",
+      "label": "digit8.b",
+      "engineId": "digit8.b",
+      "x": 2277,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit8-b.webp",
+      "digit": 8,
+      "bit": 1
+    },
+    {
+      "type": "segment",
+      "id": "digit8.c",
+      "label": "digit8.c",
+      "engineId": "digit8.c",
+      "x": 2277,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit8-c.webp",
+      "digit": 8,
+      "bit": 2
+    },
+    {
+      "type": "segment",
+      "id": "digit8.d",
+      "label": "digit8.d",
+      "engineId": "digit8.d",
+      "x": 2224,
+      "y": 657,
+      "width": 74,
+      "height": 28,
+      "file": "sprite-digit8-d.webp",
+      "digit": 8,
+      "bit": 3
+    },
+    {
+      "type": "segment",
+      "id": "digit8.dp",
+      "label": "digit8.dp",
+      "engineId": "digit8.dp",
+      "x": 2292,
+      "y": 657,
+      "width": 30,
+      "height": 31,
+      "file": "sprite-digit8-dp.webp",
+      "digit": 8,
+      "bit": 7
+    },
+    {
+      "type": "segment",
+      "id": "digit8.e",
+      "label": "digit8.e",
+      "engineId": "digit8.e",
+      "x": 2214,
+      "y": 606,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit8-e.webp",
+      "digit": 8,
+      "bit": 4
+    },
+    {
+      "type": "segment",
+      "id": "digit8.f",
+      "label": "digit8.f",
+      "engineId": "digit8.f",
+      "x": 2214,
+      "y": 543,
+      "width": 31,
+      "height": 66,
+      "file": "sprite-digit8-f.webp",
+      "digit": 8,
+      "bit": 5
+    },
+    {
+      "type": "segment",
+      "id": "digit8.g",
+      "label": "digit8.g",
+      "engineId": "digit8.g",
+      "x": 2224,
+      "y": 594,
+      "width": 74,
+      "height": 27,
+      "file": "sprite-digit8-g.webp",
+      "digit": 8,
+      "bit": 6
+    },
+    {
+      "type": "thermo",
+      "id": "U5",
+      "label": "DS18B20",
+      "engineId": "U5",
+      "x": 2931,
+      "y": 694,
+      "width": 60,
+      "height": 92,
+      "hitPolygon": [
+        [
+          2964.466064453125,
+          694.4608154296875
+        ],
+        [
+          2974.663818359375,
+          694.4608154296875
+        ],
+        [
+          2990.1591796875,
+          700.9847412109375
+        ],
+        [
+          2990.1591796875,
+          778.6007690429688
+        ],
+        [
+          2974.6640625,
+          785.1246948242188
+        ],
+        [
+          2964.46630859375,
+          785.1246948242188
+        ],
+        [
+          2931.545166015625,
+          778.6007690429688
+        ],
+        [
+          2931.545166015625,
+          700.9847412109375
+        ]
+      ]
+    },
+    {
+      "type": "ultrasonic",
+      "id": "JS1",
+      "label": "JS1",
+      "engineId": "JS1",
+      "x": 2033,
+      "y": 124,
+      "width": 257,
+      "height": 256,
+      "hitPolygon": [
+        [
+          2033.9779052734375,
+          124.33265686035156
+        ],
+        [
+          2289.6611328125,
+          124.33265686035156
+        ],
+        [
+          2289.6611328125,
+          379.9903564453125
+        ],
+        [
+          2033.9776611328125,
+          379.9903564453125
+        ]
+      ]
+    },
+    {
+      "type": "ultrasonic",
+      "id": "JS2",
+      "label": "JS2",
+      "engineId": "JS2",
+      "x": 1410,
+      "y": 124,
+      "width": 256,
+      "height": 256,
+      "hitPolygon": [
+        [
+          1410.294677734375,
+          124.33265686035156
+        ],
+        [
+          1665.9779052734375,
+          124.33265686035156
+        ],
+        [
+          1665.9779052734375,
+          379.9903564453125
+        ],
+        [
+          1410.294677734375,
+          379.9903564453125
+        ]
+      ]
+    }
+  ]
+}

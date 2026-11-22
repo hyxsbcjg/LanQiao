@@ -1,0 +1,719 @@
+use anyhow::{Result, bail};
+
+use super::registers::*;
+use crate::peripherals::SignalEdge;
+
+mod pca;
+use pca::Pca;
+const TIMER0_COUNTER_EDGE: SignalEdge = SignalEdge::Falling;
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct TimerSnapshot {
+    pub(crate) tcon: u8,
+    pub(crate) tmod: u8,
+    pub(crate) tl0: u8,
+    pub(crate) th0: u8,
+    pub(crate) tl1: u8,
+    pub(crate) th1: u8,
+    pub(crate) t2h: u8,
+    pub(crate) t2l: u8,
+    pub(crate) cmod: u8,
+    pub(crate) ccon: u8,
+    pub(crate) ch: u8,
+    pub(crate) cl: u8,
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct TimerBlock {
+    timer01: Timer01,
+    timer2: Timer2,
+    pca: Pca,
+}
+
+impl TimerBlock {
+    // STC15_DS.pdf pp.619,625: baud uses reload shadows, never live counters.
+    pub(crate) fn uart1_bit_ticks(&self, auxr: u8, smod: bool) -> Option<u64> {
+        if auxr & AUXR_S1ST2 != 0 {
+            if auxr & AUXR_T2_RUN == 0 || auxr & AUXR_T2_C_T != 0 {
+                return None;
+            }
+            let reload = u16::from_be_bytes([self.timer2.reload_high, self.timer2.reload_low]);
+            return Some(
+                (65536 - u64::from(reload)) * 4 * if auxr & AUXR_T2_X12 != 0 { 1 } else { 12 },
+            );
+        }
+        let t = &self.timer01;
+        if t.tcon & TCON_TR1 == 0 || t.tmod & (TMOD_C_T1 | TMOD_GATE1) != 0 {
+            return None;
+        }
+        let prescaler = if auxr & AUXR_T1_X12 != 0 { 1 } else { 12 };
+        match t.tmod & 0x30 {
+            0 => {
+                Some((65536 - u64::from(u16::from_be_bytes([t.rl_th1, t.rl_tl1]))) * prescaler * 4)
+            }
+            0x20 => Some((256 - u64::from(t.th1)) * prescaler * if smod { 16 } else { 32 }),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn handles(addr: u8) -> bool {
+        matches!(
+            addr,
+            SFR_TCON | SFR_TMOD | SFR_TL0 | SFR_TL1 | SFR_TH0 | SFR_TH1 | SFR_T2H | SFR_T2L
+        )
+    }
+
+    pub(crate) fn read(&self, generic: &[u8; 128], addr: u8) -> Option<u8> {
+        match addr {
+            SFR_TCON | SFR_TMOD | SFR_TL0 | SFR_TL1 | SFR_TH0 | SFR_TH1 => {
+                Some(self.timer01.read(addr))
+            }
+            SFR_T2H | SFR_T2L => Some(read_sfr(generic, addr)),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn write(&mut self, generic: &mut [u8; 128], addr: u8, value: u8) -> bool {
+        match addr {
+            SFR_TCON | SFR_TMOD | SFR_TL0 | SFR_TL1 | SFR_TH0 | SFR_TH1 => {
+                self.timer01.write(addr, value);
+                true
+            }
+            SFR_T2H | SFR_T2L => {
+                self.timer2.write(generic, addr, value);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    pub(crate) fn tick_timers01_t2(
+        &mut self,
+        p3: u8,
+        auxr: u8,
+        ticks: u32,
+        t0_transitions: impl Iterator<Item = crate::peripherals::SignalTransition>,
+        generic: &mut [u8; 128],
+    ) -> Result<()> {
+        self.timer01.tick(p3, auxr, ticks, t0_transitions)?;
+        self.timer2.tick(p3, auxr, ticks, generic)?;
+        self.pca.timer0_overflows(self.timer01.overflows0, generic);
+        Ok(())
+    }
+
+    pub(crate) fn tick_pca(&mut self, ticks: u32, generic: &mut [u8; 128]) -> Result<()> {
+        self.pca.tick(ticks, generic);
+        Ok(())
+    }
+
+    pub(crate) fn sample_pca_eci(&mut self, previous_p1: u8, next_p1: u8, generic: &mut [u8; 128]) {
+        self.pca.sample_eci(previous_p1, next_p1, generic);
+    }
+
+    pub(crate) fn timer2_interrupt_requested(&self) -> bool {
+        self.timer2.interrupt_requested()
+    }
+
+    pub(crate) fn ack_timer2_interrupt(&mut self) {
+        self.timer2.ack_interrupt();
+    }
+
+    /// 固件改写 `IE2` 之后同步 T2 的中断允许位.
+    ///
+    /// 手册 7.5.1 的例程说明, 清 `ET2` 时芯片会连带清掉 T2 内部的溢出标志,
+    /// 因此这里既要在允许位下降沿清标志, 也要避免关闭期间积攒出过期的请求.
+    pub(crate) fn sync_timer2_interrupt_enable(&mut self, ie2: u8) {
+        self.timer2.set_interrupt_enabled(ie2 & IE2_ET2 != 0);
+    }
+
+    pub(crate) fn snapshot(&self, generic: &[u8; 128]) -> TimerSnapshot {
+        TimerSnapshot {
+            tcon: self.timer01.tcon,
+            tmod: self.timer01.tmod,
+            tl0: self.timer01.tl0,
+            th0: self.timer01.th0,
+            tl1: self.timer01.tl1,
+            th1: self.timer01.th1,
+            t2h: read_sfr(generic, SFR_T2H),
+            t2l: read_sfr(generic, SFR_T2L),
+            cmod: read_sfr(generic, SFR_CMOD),
+            ccon: read_sfr(generic, SFR_CCON),
+            ch: read_sfr(generic, SFR_CH),
+            cl: read_sfr(generic, SFR_CL),
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+struct Timer01 {
+    overflows0: u32,
+    tcon: u8,
+    tmod: u8,
+    tl0: u8,
+    tl1: u8,
+    th0: u8,
+    th1: u8,
+    rl_tl0: u8,
+    rl_tl1: u8,
+    rl_th0: u8,
+    rl_th1: u8,
+    div0: u8,
+    div1: u8,
+    prev_p3: u8,
+}
+
+impl Timer01 {
+    fn read(&self, addr: u8) -> u8 {
+        match addr {
+            SFR_TCON => self.tcon,
+            SFR_TMOD => self.tmod,
+            SFR_TL0 => self.tl0,
+            SFR_TL1 => self.tl1,
+            SFR_TH0 => self.th0,
+            SFR_TH1 => self.th1,
+            _ => 0,
+        }
+    }
+
+    fn write(&mut self, addr: u8, value: u8) {
+        let running0 = self.tcon & TCON_TR0 != 0 && self.tmod & 0x03 == 0;
+        let running1 = self.tcon & TCON_TR1 != 0 && self.tmod & 0x30 == 0;
+        match addr {
+            SFR_TCON => self.tcon = value,
+            SFR_TMOD => self.tmod = value,
+            SFR_TL0 => {
+                if !running0 {
+                    self.tl0 = value;
+                }
+                self.rl_tl0 = value;
+            }
+            SFR_TL1 => {
+                if !running1 {
+                    self.tl1 = value;
+                }
+                self.rl_tl1 = value;
+            }
+            SFR_TH0 => {
+                if !running0 {
+                    self.th0 = value;
+                }
+                self.rl_th0 = value;
+            }
+            SFR_TH1 => {
+                if !running1 {
+                    self.th1 = value;
+                }
+                self.rl_th1 = value;
+            }
+            _ => {}
+        }
+    }
+
+    fn tick(
+        &mut self,
+        p3: u8,
+        auxr: u8,
+        ticks: u32,
+        t0_transitions: impl Iterator<Item = crate::peripherals::SignalTransition>,
+    ) -> Result<()> {
+        self.overflows0 = 0;
+        self.tick_timer0(p3, auxr, ticks, t0_transitions)?;
+        self.tick_timer1(p3, auxr, ticks);
+        self.prev_p3 = p3;
+        Ok(())
+    }
+
+    fn tick_timer0(
+        &mut self,
+        p3: u8,
+        auxr: u8,
+        ticks: u32,
+        t0_transitions: impl Iterator<Item = crate::peripherals::SignalTransition>,
+    ) -> Result<()> {
+        if self.tcon & TCON_TR0 == 0 {
+            self.div0 = 0;
+            return Ok(());
+        }
+        if self.tmod & TMOD_GATE0 != 0 && p3 & P3_INT0 == 0 {
+            self.div0 = 0;
+            return Ok(());
+        }
+
+        if self.tmod & TMOD_C_T0 != 0 {
+            for transition in t0_transitions {
+                if transition.edge == TIMER0_COUNTER_EDGE {
+                    self.increment_timer0_once()?;
+                }
+            }
+            return Ok(());
+        }
+
+        let tick_count = timer_tick_count(auxr & AUXR_T0_X12 != 0, &mut self.div0, ticks);
+        for _ in 0..tick_count {
+            self.increment_timer0_once()?;
+        }
+        Ok(())
+    }
+
+    fn increment_timer0_once(&mut self) -> Result<()> {
+        match self.tmod & 0x03 {
+            0x00 => {
+                let next = u16::from_be_bytes([self.th0, self.tl0]).wrapping_add(1);
+                if next == 0 {
+                    self.th0 = self.rl_th0;
+                    self.tl0 = self.rl_tl0;
+                    self.tcon |= TCON_TF0;
+                    self.overflows0 += 1;
+                } else {
+                    let [th0, tl0] = next.to_be_bytes();
+                    self.th0 = th0;
+                    self.tl0 = tl0;
+                }
+                Ok(())
+            }
+            0x01 => {
+                let next = u16::from_be_bytes([self.th0, self.tl0]).wrapping_add(1);
+                let [th0, tl0] = next.to_be_bytes();
+                self.th0 = th0;
+                self.tl0 = tl0;
+                if next == 0 {
+                    self.tcon |= TCON_TF0;
+                    self.overflows0 += 1;
+                }
+                Ok(())
+            }
+            0x02 => {
+                self.tl0 = self.tl0.wrapping_add(1);
+                if self.tl0 == 0 {
+                    self.tl0 = self.th0;
+                    self.tcon |= TCON_TF0;
+                    self.overflows0 += 1;
+                }
+                Ok(())
+            }
+            0x03 => bail!("暂不支持定时器0模式3: STC15 该模式为不可屏蔽中断的16位自动重装载"),
+            _ => unreachable!(),
+        }
+    }
+
+    fn tick_timer1(&mut self, p3: u8, auxr: u8, ticks: u32) {
+        if self.tcon & TCON_TR1 == 0 {
+            self.div1 = 0;
+            return;
+        }
+        if self.tmod & TMOD_GATE1 != 0 && p3 & P3_INT1 == 0 {
+            self.div1 = 0;
+            return;
+        }
+
+        let mode = (self.tmod >> 4) & 0x03;
+        if mode == 0x03 {
+            self.div1 = 0;
+            return;
+        }
+
+        let tick_count = if self.tmod & TMOD_C_T1 != 0 {
+            u32::from(self.prev_p3 & P3_T1 != 0 && p3 & P3_T1 == 0)
+        } else {
+            timer_tick_count(auxr & AUXR_T1_X12 != 0, &mut self.div1, ticks)
+        };
+        if tick_count == 0 {
+            return;
+        }
+
+        match mode {
+            0x00 => {
+                for _ in 0..tick_count {
+                    let next = u16::from_be_bytes([self.th1, self.tl1]).wrapping_add(1);
+                    if next == 0 {
+                        self.th1 = self.rl_th1;
+                        self.tl1 = self.rl_tl1;
+                        self.tcon |= TCON_TF1;
+                    } else {
+                        let [th1, tl1] = next.to_be_bytes();
+                        self.th1 = th1;
+                        self.tl1 = tl1;
+                    }
+                }
+            }
+            0x01 => {
+                for _ in 0..tick_count {
+                    let next = u16::from_be_bytes([self.th1, self.tl1]).wrapping_add(1);
+                    let [th1, tl1] = next.to_be_bytes();
+                    self.th1 = th1;
+                    self.tl1 = tl1;
+                    if next == 0 {
+                        self.tcon |= TCON_TF1;
+                    }
+                }
+            }
+            0x02 => {
+                for _ in 0..tick_count {
+                    self.tl1 = self.tl1.wrapping_add(1);
+                    if self.tl1 == 0 {
+                        self.tl1 = self.th1;
+                        self.tcon |= TCON_TF1;
+                    }
+                }
+            }
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+struct Timer2 {
+    reload_high: u8,
+    reload_low: u8,
+    divider: u8,
+    prev_p3: u8,
+    interrupt_enabled: bool,
+    overflow_latched: bool,
+}
+
+impl Timer2 {
+    fn write(&mut self, generic: &mut [u8; 128], addr: u8, value: u8) {
+        if read_sfr(generic, SFR_AUXR) & AUXR_T2_RUN == 0 {
+            write_sfr(generic, addr, value);
+        }
+        match addr {
+            SFR_T2H => self.reload_high = value,
+            SFR_T2L => self.reload_low = value,
+            _ => {}
+        }
+    }
+
+    /// T2 没有提供给用户查询的溢出标志位, 手册 6.3 表格中该行是空的,
+    /// 这里用内部挂起位来对应"溢出之后到 CPU 受理中断之前"的这段时间.
+    fn interrupt_requested(&self) -> bool {
+        self.interrupt_enabled && self.overflow_latched
+    }
+
+    /// CPU 受理 T2 中断后, 芯片会自动清掉内部溢出标志.
+    fn ack_interrupt(&mut self) {
+        self.overflow_latched = false;
+    }
+
+    fn set_interrupt_enabled(&mut self, enabled: bool) {
+        if enabled == self.interrupt_enabled {
+            return;
+        }
+        self.interrupt_enabled = enabled;
+        self.overflow_latched = false;
+    }
+
+    fn latch_overflow(&mut self) {
+        if self.interrupt_enabled {
+            self.overflow_latched = true;
+        }
+    }
+
+    fn tick(&mut self, p3: u8, auxr: u8, ticks: u32, generic: &mut [u8; 128]) -> Result<()> {
+        if auxr & AUXR_T2_RUN == 0 {
+            self.divider = 0;
+            self.prev_p3 = p3;
+            return Ok(());
+        }
+
+        let tick_count = if auxr & AUXR_T2_C_T != 0 {
+            u32::from(self.prev_p3 & P3_T2 != 0 && p3 & P3_T2 == 0)
+        } else {
+            timer_tick_count(auxr & AUXR_T2_X12 != 0, &mut self.divider, ticks)
+        };
+        if tick_count == 0 {
+            self.prev_p3 = p3;
+            return Ok(());
+        }
+
+        for _ in 0..tick_count {
+            let next = u16::from_be_bytes([read_sfr(generic, SFR_T2H), read_sfr(generic, SFR_T2L)])
+                .wrapping_add(1);
+            if next == 0 {
+                write_sfr(generic, SFR_T2H, self.reload_high);
+                write_sfr(generic, SFR_T2L, self.reload_low);
+                self.latch_overflow();
+            } else {
+                let [t2h, t2l] = next.to_be_bytes();
+                write_sfr(generic, SFR_T2H, t2h);
+                write_sfr(generic, SFR_T2L, t2l);
+            }
+        }
+        self.prev_p3 = p3;
+        Ok(())
+    }
+}
+
+fn read_sfr(generic: &[u8; 128], addr: u8) -> u8 {
+    generic[usize::from(addr.wrapping_sub(0x80))]
+}
+
+fn write_sfr(generic: &mut [u8; 128], addr: u8, value: u8) {
+    generic[usize::from(addr.wrapping_sub(0x80))] = value;
+}
+
+fn timer_tick_count(one_t: bool, divider: &mut u8, ticks: u32) -> u32 {
+    if one_t {
+        *divider = 0;
+        return ticks;
+    }
+
+    let total = u32::from(*divider).saturating_add(ticks);
+    *divider = (total % 12) as u8;
+    total / 12
+}
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+
+    use super::super::registers::*;
+    use super::{TimerBlock, read_sfr, write_sfr};
+    use crate::peripherals::{SignalEdge, SignalTransition, SignalTransitionIter};
+
+    fn empty_transitions() -> SignalTransitionIter {
+        SignalTransitionIter::empty()
+    }
+
+    fn generic() -> [u8; 128] {
+        [0; 128]
+    }
+
+    #[test]
+    fn timer0_mode0_auto_reload_sets_tf0() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_TH0, 0x12));
+        assert!(timers.write(&mut generic, SFR_TL0, 0x34));
+        assert!(timers.write(&mut generic, SFR_TMOD, 0x00));
+        assert!(timers.write(&mut generic, SFR_TH0, 0xFF));
+        assert!(timers.write(&mut generic, SFR_TL0, 0xFF));
+        assert!(timers.write(&mut generic, SFR_TCON, TCON_TR0));
+
+        timers.tick_timers01_t2(0xFF, AUXR_T0_X12, 1, empty_transitions(), &mut generic)?;
+
+        let snapshot = timers.snapshot(&generic);
+        assert_eq!(snapshot.th0, 0xFF);
+        assert_eq!(snapshot.tl0, 0xFF);
+        assert_eq!(snapshot.tcon & TCON_TF0, TCON_TF0);
+        Ok(())
+    }
+
+    #[test]
+    fn timer1_mode2_reloads_from_th1() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_TH1, 0xA5));
+        assert!(timers.write(&mut generic, SFR_TL1, 0xFF));
+        assert!(timers.write(&mut generic, SFR_TMOD, 0x20));
+        assert!(timers.write(&mut generic, SFR_TCON, TCON_TR1));
+
+        timers.tick_timers01_t2(0xFF, AUXR_T1_X12, 1, empty_transitions(), &mut generic)?;
+
+        let snapshot = timers.snapshot(&generic);
+        assert_eq!(snapshot.tl1, 0xA5);
+        assert_eq!(snapshot.tcon & TCON_TF1, TCON_TF1);
+        Ok(())
+    }
+
+    #[test]
+    fn timer2_auto_reload_uses_shadow_value() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_T2H, 0x12));
+        assert!(timers.write(&mut generic, SFR_T2L, 0x34));
+        write_sfr(&mut generic, SFR_T2H, 0xFF);
+        write_sfr(&mut generic, SFR_T2L, 0xFF);
+
+        timers.tick_timers01_t2(
+            0xFF,
+            AUXR_T2_RUN | AUXR_T2_X12,
+            1,
+            empty_transitions(),
+            &mut generic,
+        )?;
+
+        assert_eq!(read_sfr(&generic, SFR_T2H), 0x12);
+        assert_eq!(read_sfr(&generic, SFR_T2L), 0x34);
+        Ok(())
+    }
+
+    #[test]
+    fn timer2_overflow_latches_request_until_serviced() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        timers.sync_timer2_interrupt_enable(IE2_ET2);
+
+        assert!(timers.write(&mut generic, SFR_T2H, 0xFF));
+        assert!(timers.write(&mut generic, SFR_T2L, 0xFF));
+        assert!(
+            !timers.timer2_interrupt_requested(),
+            "刚上电且没有溢出时不应该有 T2 请求"
+        );
+
+        timers.tick_timers01_t2(
+            0xFF,
+            AUXR_T2_RUN | AUXR_T2_X12,
+            1,
+            empty_transitions(),
+            &mut generic,
+        )?;
+        assert!(timers.timer2_interrupt_requested(), "溢出后应挂起 T2 请求");
+        assert_eq!(read_sfr(&generic, SFR_T2H), 0xFF);
+        assert_eq!(read_sfr(&generic, SFR_T2L), 0xFF);
+
+        // 中断还没来得及受理时又溢出一次, 请求保持挂起, 直到被受理.
+        timers.tick_timers01_t2(
+            0xFF,
+            AUXR_T2_RUN | AUXR_T2_X12,
+            1,
+            empty_transitions(),
+            &mut generic,
+        )?;
+        assert!(
+            timers.timer2_interrupt_requested(),
+            "受理之前的再次溢出不应丢请求"
+        );
+
+        timers.ack_timer2_interrupt();
+        assert!(
+            !timers.timer2_interrupt_requested(),
+            "受理之后内部溢出标志应被清掉"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn timer2_interrupt_follows_et2_gate() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_T2H, 0xFF));
+        assert!(timers.write(&mut generic, SFR_T2L, 0xFF));
+
+        // ET2 = 0 时溢出只推进计数器, 不生成请求.
+        timers.tick_timers01_t2(
+            0xFF,
+            AUXR_T2_RUN | AUXR_T2_X12,
+            1,
+            empty_transitions(),
+            &mut generic,
+        )?;
+        assert!(!timers.timer2_interrupt_requested());
+
+        timers.sync_timer2_interrupt_enable(IE2_ET2);
+        assert!(
+            !timers.timer2_interrupt_requested(),
+            "关闭期间积攒的溢出不应在重新允许后立刻触发"
+        );
+
+        timers.tick_timers01_t2(
+            0xFF,
+            AUXR_T2_RUN | AUXR_T2_X12,
+            1,
+            empty_transitions(),
+            &mut generic,
+        )?;
+        assert!(timers.timer2_interrupt_requested());
+
+        // 固件清 ET2 时芯片会连带清掉内部溢出标志.
+        timers.sync_timer2_interrupt_enable(0);
+        assert!(
+            !timers.timer2_interrupt_requested(),
+            "清 ET2 应清掉挂起的 T2 请求"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn timer2_counter_mode_latches_request_on_p3_1_falling_edge() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        timers.sync_timer2_interrupt_enable(IE2_ET2);
+        assert!(timers.write(&mut generic, SFR_T2H, 0xFF));
+        assert!(timers.write(&mut generic, SFR_T2L, 0xFF));
+
+        let auxr = AUXR_T2_RUN | AUXR_T2_C_T;
+        timers.tick_timers01_t2(0xFF, auxr, 1, empty_transitions(), &mut generic)?;
+        assert!(
+            !timers.timer2_interrupt_requested(),
+            "P3.1 没有下降沿时不应该有 T2 请求"
+        );
+
+        // P3.1 由高变低构成一次外部计数, 计数器随即溢出.
+        timers.tick_timers01_t2(!P3_T2, auxr, 1, empty_transitions(), &mut generic)?;
+        assert!(timers.timer2_interrupt_requested());
+        Ok(())
+    }
+
+    #[test]
+    fn timer0_mode3_returns_error() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_TMOD, 0x03));
+        assert!(timers.write(&mut generic, SFR_TCON, TCON_TR0));
+
+        let err = timers
+            .tick_timers01_t2(0xFF, AUXR_T0_X12, 1, empty_transitions(), &mut generic)
+            .expect_err("mode3 should fail");
+        assert!(err.to_string().contains("模式3"));
+        Ok(())
+    }
+
+    #[test]
+    fn timer0_counter_mode_accepts_multiple_external_edges_per_step() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        assert!(timers.write(&mut generic, SFR_TMOD, TMOD_C_T0));
+        assert!(timers.write(&mut generic, SFR_TCON, TCON_TR0));
+
+        let transitions = [
+            SignalTransition {
+                time_ns: 100,
+                edge: SignalEdge::Rising,
+            },
+            SignalTransition {
+                time_ns: 200,
+                edge: SignalEdge::Falling,
+            },
+            SignalTransition {
+                time_ns: 300,
+                edge: SignalEdge::Rising,
+            },
+            SignalTransition {
+                time_ns: 400,
+                edge: SignalEdge::Falling,
+            },
+            SignalTransition {
+                time_ns: 500,
+                edge: SignalEdge::Rising,
+            },
+            SignalTransition {
+                time_ns: 600,
+                edge: SignalEdge::Falling,
+            },
+            SignalTransition {
+                time_ns: 700,
+                edge: SignalEdge::Rising,
+            },
+        ];
+        timers.tick_timers01_t2(0xFF, AUXR_T0_X12, 4, transitions.into_iter(), &mut generic)?;
+
+        let snapshot = timers.snapshot(&generic);
+        assert_eq!(snapshot.tl0, 3);
+        Ok(())
+    }
+
+    #[test]
+    fn pca_ecf_does_not_change_the_sysclk_div12_counter() -> Result<()> {
+        let mut timers = TimerBlock::default();
+        let mut generic = generic();
+        write_sfr(&mut generic, SFR_CCON, CCON_CR);
+
+        timers.tick_pca(12, &mut generic)?;
+        assert_eq!(read_sfr(&generic, SFR_CL), 1);
+
+        write_sfr(&mut generic, SFR_CMOD, 0x01);
+        timers.tick_pca(12, &mut generic)?;
+        assert_eq!(read_sfr(&generic, SFR_CL), 2);
+        Ok(())
+    }
+}

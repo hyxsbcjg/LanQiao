@@ -1,0 +1,37 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_websim_free: (a: number, b: number) => void;
+export const websim_boardState: (a: number) => [number, number];
+export const websim_debugState: (a: number) => [number, number];
+export const websim_exportState: (a: number) => [number, number];
+export const websim_importState: (a: number, b: number, c: number) => [number, number];
+export const websim_loadHex: (a: number, b: number, c: number) => [number, number];
+export const websim_new: () => number;
+export const websim_peekSnapshot: (a: number) => [number, number];
+export const websim_reset: (a: number, b: number, c: number) => [number, number];
+export const websim_runUs: (a: number, b: number) => void;
+export const websim_setDial: (a: number, b: number, c: number, d: number) => [number, number];
+export const websim_setDistanceCm: (a: number, b: number) => [number, number];
+export const websim_setFrequencyHz: (a: number, b: number) => [number, number];
+export const websim_setJumper: (a: number, b: number, c: number, d: number, e: number) => [number, number];
+export const websim_setKey: (a: number, b: number, c: number, d: number) => [number, number];
+export const websim_setKeyMode: (a: number, b: number, c: number) => [number, number];
+export const websim_setLight: (a: number, b: number) => [number, number];
+export const websim_setNe555Jumper: (a: number, b: number) => [number, number];
+export const websim_setRtc: (a: number, b: number, c: number, d: number) => [number, number];
+export const websim_setTemperatureC: (a: number, b: number) => [number, number];
+export const websim_setVoltage: (a: number, b: number, c: number, d: number) => [number, number];
+export const websim_set_irc_hz: (a: number, b: number) => [number, number];
+export const websim_set_uart_terminal_baud: (a: number, b: number) => [number, number];
+export const websim_snapshot: (a: number) => [number, number];
+export const websim_step: (a: number) => void;
+export const websim_takeBrightness: (a: number) => [number, number];
+export const websim_uartTake: (a: number) => [number, number, number, number];
+export const websim_uartWrite: (a: number, b: number, c: number) => [number, number];
+export const __wbindgen_externrefs: WebAssembly.Table;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
+export const __wbindgen_malloc: (a: number, b: number) => number;
+export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+export const __externref_table_dealloc: (a: number) => void;
+export const __wbindgen_start: () => void;

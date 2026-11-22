@@ -1,0 +1,763 @@
+use anyhow::{Result, bail};
+
+use crate::chip::NS_PER_SECOND;
+use crate::event::{
+    gate::{EventGate, SharedEventGate},
+    track::EventTrack,
+};
+use crate::persistent_state::Ds1302PersistentState;
+use crate::wave::{WaveCaptureWindow, WaveEventNote};
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Ds1302State {
+    pub hour: Option<u8>,
+    pub minute: Option<u8>,
+    pub second: Option<u8>,
+    pub day_of_week: Option<u8>,
+    pub date: Option<u8>,
+    pub month: Option<u8>,
+    pub year: Option<u8>,
+    pub halted: Option<bool>,
+    pub hour_mode_12: Option<bool>,
+    pub write_protect: Option<bool>,
+    pub trickle_charge: Option<u8>,
+}
+
+impl Ds1302State {
+    fn touches_calendar_or_time(&self) -> bool {
+        self.hour.is_some()
+            || self.minute.is_some()
+            || self.second.is_some()
+            || self.day_of_week.is_some()
+            || self.date.is_some()
+            || self.month.is_some()
+            || self.year.is_some()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct Ds1302 {
+    ce_prev: bool,
+    clk_prev: bool,
+    bit_count: u8,
+    shift_in: u8,
+    shift_out: u8,
+    read_byte: u8,
+    pub(crate) reading: bool,
+    pub(crate) io_level: bool,
+    pub(crate) current_reg: u8,
+    data_phase: bool,
+    burst_index: u8,
+    write_protect: bool,
+    trickle_charge: u8,
+    ram: [u8; 31],
+    hour_mode_12: bool,
+    pub(crate) hour: u8,
+    pub(crate) minute: u8,
+    pub(crate) second: u8,
+    pub(crate) day_of_week: u8,
+    pub(crate) date: u8,
+    pub(crate) month: u8,
+    pub(crate) year: u8,
+    pub(crate) halted: bool,
+    pub(crate) sub_ns: u64,
+    pub(crate) last_write_reg: u8,
+    pub(crate) last_write_value: u8,
+    pub(crate) last_clock_write_reg: u8,
+    pub(crate) last_clock_write_value: u8,
+    pub(crate) last_read_reg: u8,
+    pub(crate) last_read_value: u8,
+    event_gate: SharedEventGate,
+    event_notes: Vec<WaveEventNote>,
+}
+
+impl Default for Ds1302 {
+    fn default() -> Self {
+        Self::new(true)
+    }
+}
+
+impl Ds1302 {
+    pub(crate) fn new(wave_enabled: bool) -> Self {
+        Self::new_with_event_gate(EventGate::shared(WaveCaptureWindow::from_enabled(
+            wave_enabled,
+        )))
+    }
+
+    pub(crate) fn new_with_event_gate(event_gate: SharedEventGate) -> Self {
+        Self {
+            ce_prev: false,
+            clk_prev: false,
+            bit_count: 0,
+            shift_in: 0,
+            shift_out: 0,
+            read_byte: 0,
+            reading: false,
+            io_level: true,
+            current_reg: 0,
+            data_phase: false,
+            burst_index: 0,
+            write_protect: false,
+            trickle_charge: 0,
+            ram: [0; 31],
+            hour_mode_12: false,
+            hour: 0,
+            minute: 0,
+            second: 0,
+            day_of_week: 1,
+            date: 1,
+            month: 1,
+            year: 0,
+            halted: false,
+            sub_ns: 0,
+            last_write_reg: 0,
+            last_write_value: 0,
+            last_clock_write_reg: 0,
+            last_clock_write_value: 0,
+            last_read_reg: 0,
+            last_read_value: 0,
+            event_gate,
+            event_notes: Vec::new(),
+        }
+    }
+
+    pub(crate) fn set_state(&mut self, state: Ds1302State) -> Result<()> {
+        if let Some(hour) = state.hour
+            && hour > 23
+        {
+            bail!("RTC 小时必须在 0..=23");
+        }
+        if let Some(minute) = state.minute
+            && minute > 59
+        {
+            bail!("RTC 分钟必须在 0..=59");
+        }
+        if let Some(second) = state.second
+            && second > 59
+        {
+            bail!("RTC 秒必须在 0..=59");
+        }
+        if let Some(day_of_week) = state.day_of_week
+            && !(1..=7).contains(&day_of_week)
+        {
+            bail!("RTC 星期必须在 1..=7");
+        }
+        if let Some(date) = state.date
+            && !(1..=31).contains(&date)
+        {
+            bail!("RTC 日期必须在 1..=31");
+        }
+        if let Some(month) = state.month
+            && !(1..=12).contains(&month)
+        {
+            bail!("RTC 月份必须在 1..=12");
+        }
+
+        if let Some(hour) = state.hour {
+            self.hour = hour;
+        }
+        if let Some(minute) = state.minute {
+            self.minute = minute;
+        }
+        if let Some(second) = state.second {
+            self.second = second;
+        }
+        if let Some(day_of_week) = state.day_of_week {
+            self.day_of_week = day_of_week;
+        }
+        if let Some(date) = state.date {
+            self.date = date;
+        }
+        if let Some(month) = state.month {
+            self.month = month;
+        }
+        if let Some(year) = state.year {
+            self.year = year;
+        }
+        if let Some(halted) = state.halted {
+            self.halted = halted;
+        }
+        if let Some(hour_mode_12) = state.hour_mode_12 {
+            self.hour_mode_12 = hour_mode_12;
+        }
+        if let Some(write_protect) = state.write_protect {
+            self.write_protect = write_protect;
+        }
+        if let Some(trickle_charge) = state.trickle_charge {
+            self.trickle_charge = trickle_charge;
+        }
+        if state.touches_calendar_or_time() {
+            self.sub_ns = 0;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn tick_ns(&mut self, elapsed_ns: u64) {
+        if self.halted {
+            return;
+        }
+
+        self.sub_ns = self.sub_ns.saturating_add(elapsed_ns);
+        if self.sub_ns < NS_PER_SECOND {
+            return;
+        }
+        let elapsed_seconds = self.sub_ns / NS_PER_SECOND;
+        self.sub_ns %= NS_PER_SECOND;
+        for _ in 0..elapsed_seconds {
+            self.advance_one_second();
+        }
+    }
+
+    pub(crate) fn sample(&mut self, time_ns: u64, ce: bool, clk: bool, io: bool) {
+        if !ce {
+            self.reset_transfer_state();
+            self.ce_prev = ce;
+            self.clk_prev = clk;
+            return;
+        }
+
+        if !self.ce_prev && ce {
+            self.reset_transfer_state();
+        }
+
+        if !self.clk_prev && clk {
+            if !self.data_phase {
+                if io {
+                    self.shift_in |= 1 << self.bit_count;
+                }
+                self.bit_count += 1;
+                if self.bit_count == 8 {
+                    self.current_reg = self.shift_in;
+                    self.shift_in = 0;
+                    self.bit_count = 0;
+                    self.data_phase = true;
+                    self.reading = self.current_reg & 0x01 != 0;
+                    let current_reg = self.current_reg;
+                    let reading = self.reading;
+                    self.push_event_note(time_ns, || {
+                        WaveEventNote::with_detail(
+                            time_ns,
+                            EventTrack::Ds1302.track_id(),
+                            if reading { "CMD read" } else { "CMD write" },
+                            format!("reg=0x{current_reg:02X}"),
+                        )
+                    });
+                    if self.reading {
+                        self.load_read_byte(time_ns);
+                    }
+                }
+            } else if !self.reading {
+                if io {
+                    self.shift_in |= 1 << self.bit_count;
+                }
+                self.bit_count += 1;
+                if self.bit_count == 8 {
+                    let value = self.shift_in;
+                    self.shift_in = 0;
+                    self.bit_count = 0;
+                    self.write_register(time_ns, value);
+                    if self.is_burst() {
+                        self.burst_index = self.burst_index.saturating_add(1);
+                    }
+                }
+            }
+        }
+
+        if self.clk_prev && !clk && self.data_phase && self.reading {
+            self.io_level = self.shift_out & 1 != 0;
+            self.shift_out >>= 1;
+            self.bit_count += 1;
+            if self.bit_count == 8 {
+                self.bit_count = 0;
+                if self.is_burst() {
+                    self.burst_index = self.burst_index.saturating_add(1);
+                    self.load_read_byte(time_ns);
+                }
+                self.shift_out = self.read_byte;
+            }
+        }
+
+        self.ce_prev = ce;
+        self.clk_prev = clk;
+    }
+
+    pub(crate) fn persistent_state(&self) -> Ds1302PersistentState {
+        Ds1302PersistentState {
+            write_protect: self.write_protect,
+            trickle_charge: self.trickle_charge,
+            ram: self.ram,
+            hour_mode_12: self.hour_mode_12,
+            hour: self.hour,
+            minute: self.minute,
+            second: self.second,
+            day_of_week: self.day_of_week,
+            date: self.date,
+            month: self.month,
+            year: self.year,
+            halted: self.halted,
+            sub_ns: self.sub_ns,
+        }
+    }
+
+    pub(crate) fn load_persistent_state(&mut self, state: &Ds1302PersistentState) {
+        self.write_protect = state.write_protect;
+        self.trickle_charge = state.trickle_charge;
+        self.ram = state.ram;
+        self.hour_mode_12 = state.hour_mode_12;
+        self.hour = state.hour.min(23);
+        self.minute = state.minute.min(59);
+        self.second = state.second.min(59);
+        self.day_of_week = state.day_of_week.clamp(1, 7);
+        self.date = state.date.clamp(1, 31);
+        self.month = state.month.clamp(1, 12);
+        self.year = state.year;
+        self.halted = state.halted;
+        self.sub_ns = state.sub_ns.min(NS_PER_SECOND.saturating_sub(1));
+    }
+
+    pub(crate) fn take_event_notes(&mut self) -> Vec<WaveEventNote> {
+        std::mem::take(&mut self.event_notes)
+    }
+
+    fn increment_date(&mut self) {
+        self.day_of_week = if self.day_of_week >= 7 {
+            1
+        } else {
+            self.day_of_week + 1
+        };
+
+        self.date += 1;
+        if self.date <= self.days_in_month() {
+            return;
+        }
+
+        self.date = 1;
+        self.month += 1;
+        if self.month <= 12 {
+            return;
+        }
+
+        self.month = 1;
+        self.year = (self.year + 1) % 100;
+    }
+
+    fn advance_one_second(&mut self) {
+        self.second += 1;
+        if self.second < 60 {
+            return;
+        }
+        self.second = 0;
+        self.minute += 1;
+        if self.minute < 60 {
+            return;
+        }
+        self.minute = 0;
+        self.hour += 1;
+        if self.hour < 24 {
+            return;
+        }
+        self.hour = 0;
+        self.increment_date();
+    }
+
+    fn days_in_month(&self) -> u8 {
+        match self.month {
+            1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+            4 | 6 | 9 | 11 => 30,
+            2 if self.year.is_multiple_of(4) => 29,
+            2 => 28,
+            _ => 31,
+        }
+    }
+
+    fn reset_transfer_state(&mut self) {
+        self.bit_count = 0;
+        self.shift_in = 0;
+        self.shift_out = 0;
+        self.read_byte = 0;
+        self.reading = false;
+        self.data_phase = false;
+        self.burst_index = 0;
+        self.io_level = true;
+    }
+
+    fn load_read_byte(&mut self, time_ns: u64) {
+        self.read_byte = self.read_register();
+        self.last_read_reg = self.effective_reg();
+        self.last_read_value = self.read_byte;
+        self.shift_out = self.read_byte;
+        let read_value = self.last_read_value;
+        let read_reg = self.last_read_reg;
+        self.push_event_note(time_ns, || {
+            WaveEventNote::with_detail(
+                time_ns,
+                EventTrack::Ds1302.track_id(),
+                format!("READ 0x{read_value:02X}"),
+                format!("reg=0x{read_reg:02X}"),
+            )
+        });
+    }
+
+    fn is_clock_burst(&self) -> bool {
+        self.current_reg & 0xFE == 0xBE
+    }
+
+    fn is_ram_burst(&self) -> bool {
+        self.current_reg & 0xFE == 0xFE
+    }
+
+    fn is_burst(&self) -> bool {
+        self.is_clock_burst() || self.is_ram_burst()
+    }
+
+    fn effective_reg(&self) -> u8 {
+        if self.is_clock_burst() {
+            return match self.burst_index {
+                0 => 0x80,
+                1 => 0x82,
+                2 => 0x84,
+                3 => 0x86,
+                4 => 0x88,
+                5 => 0x8A,
+                6 => 0x8C,
+                7 => 0x8E,
+                _ => 0x8E,
+            };
+        }
+
+        if self.is_ram_burst() {
+            return 0xC0 + self.burst_index.saturating_mul(2);
+        }
+
+        self.current_reg & 0xFE
+    }
+
+    fn read_register(&self) -> u8 {
+        match self.effective_reg() {
+            0x80 => bcd(self.second) | (u8::from(self.halted) << 7),
+            0x82 => bcd(self.minute),
+            0x84 => encode_hour(self.hour, self.hour_mode_12),
+            0x86 => bcd(self.date),
+            0x88 => bcd(self.month),
+            0x8A => bcd(self.day_of_week),
+            0x8C => bcd(self.year),
+            0x8E => u8::from(self.write_protect) << 7,
+            0x90 => self.trickle_charge,
+            reg @ 0xC0..=0xFC if reg.is_multiple_of(2) => self.ram[((reg - 0xC0) / 2) as usize],
+            _ => 0,
+        }
+    }
+
+    fn write_register(&mut self, time_ns: u64, value: u8) {
+        let reg = self.effective_reg();
+        if self.write_protect && reg != 0x8E {
+            return;
+        }
+
+        self.last_write_reg = reg;
+        self.last_write_value = value;
+        self.push_event_note(time_ns, || {
+            WaveEventNote::with_detail(
+                time_ns,
+                EventTrack::Ds1302.track_id(),
+                format!("WRITE 0x{value:02X}"),
+                format!("reg=0x{reg:02X}"),
+            )
+        });
+        if reg < 0x90 {
+            self.last_clock_write_reg = reg;
+            self.last_clock_write_value = value;
+        }
+
+        match reg {
+            0x80 => {
+                self.halted = value & 0x80 != 0;
+                self.second = decode_bcd(value & 0x7F).min(59);
+                self.sub_ns = 0;
+            }
+            0x82 => {
+                self.minute = decode_bcd(value & 0x7F).min(59);
+            }
+            0x84 => {
+                let (hour, hour_mode_12) = decode_hour(value);
+                self.hour = hour;
+                self.hour_mode_12 = hour_mode_12;
+            }
+            0x86 => {
+                self.date = decode_bcd(value & 0x3F).clamp(1, 31);
+            }
+            0x88 => {
+                self.month = decode_bcd(value & 0x1F).clamp(1, 12);
+            }
+            0x8A => {
+                self.day_of_week = decode_bcd(value & 0x07).clamp(1, 7);
+            }
+            0x8C => {
+                self.year = decode_bcd(value);
+            }
+            0x8E => {
+                self.write_protect = value & 0x80 != 0;
+            }
+            0x90 => {
+                self.trickle_charge = value;
+            }
+            reg @ 0xC0..=0xFC if reg.is_multiple_of(2) => {
+                self.ram[((reg - 0xC0) / 2) as usize] = value;
+            }
+            _ => {}
+        }
+    }
+
+    fn push_event_note<F>(&mut self, time_ns: u64, build: F)
+    where
+        F: FnOnce() -> WaveEventNote,
+    {
+        if self
+            .event_gate
+            .need_direct_event(EventTrack::Ds1302, time_ns)
+        {
+            self.event_notes.push(build());
+        }
+    }
+}
+
+fn bcd(value: u8) -> u8 {
+    ((value / 10) << 4) | (value % 10)
+}
+
+fn decode_bcd(value: u8) -> u8 {
+    ((value >> 4) * 10) + (value & 0x0F)
+}
+
+fn encode_hour(hour: u8, hour_mode_12: bool) -> u8 {
+    let hour = hour % 24;
+    if !hour_mode_12 {
+        return bcd(hour);
+    }
+
+    let pm = hour >= 12;
+    let hour12 = match hour % 12 {
+        0 => 12,
+        value => value,
+    };
+
+    0x80 | (u8::from(pm) << 5) | bcd(hour12)
+}
+
+fn decode_hour(value: u8) -> (u8, bool) {
+    if value & 0x80 == 0 {
+        return (decode_bcd(value & 0x3F).min(23), false);
+    }
+    let mut hour = decode_bcd(value & 0x1F).clamp(1, 12);
+    if value & 0x20 != 0 {
+        hour = (hour % 12) + 12;
+    } else if hour == 12 {
+        hour = 0;
+    }
+    (hour, true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Ds1302, Ds1302State};
+    use crate::chip::NS_PER_SECOND;
+
+    #[test]
+    fn reads_and_writes_calendar_registers() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0x86,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x28);
+        ds1302.current_reg = 0x88;
+        ds1302.write_register(0, 0x12);
+        ds1302.current_reg = 0x8A;
+        ds1302.write_register(0, 0x06);
+        ds1302.current_reg = 0x8C;
+        ds1302.write_register(0, 0x24);
+
+        assert_eq!(ds1302.date, 28);
+        assert_eq!(ds1302.month, 12);
+        assert_eq!(ds1302.day_of_week, 6);
+        assert_eq!(ds1302.year, 24);
+
+        assert_eq!(ds1302.read_register(), 0x24);
+        ds1302.current_reg = 0x86;
+        assert_eq!(ds1302.read_register(), 0x28);
+    }
+
+    #[test]
+    fn stores_ram_bytes() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0xC0,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x5A);
+        assert_eq!(ds1302.read_register(), 0x5A);
+    }
+
+    #[test]
+    fn hour_register_round_trips_12h_and_pm_bits() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0x84,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x92);
+        assert_eq!(ds1302.hour, 0);
+        assert!(ds1302.hour_mode_12);
+        assert_eq!(ds1302.read_register(), 0x92);
+
+        ds1302.write_register(0, 0xA1);
+        assert_eq!(ds1302.hour, 13);
+        assert!(ds1302.hour_mode_12);
+        assert_eq!(ds1302.read_register(), 0xA1);
+
+        ds1302.write_register(0, 0x23);
+        assert_eq!(ds1302.hour, 23);
+        assert!(!ds1302.hour_mode_12);
+        assert_eq!(ds1302.read_register(), 0x23);
+    }
+
+    #[test]
+    fn ch_bit_stops_clock_tick() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0x80,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x80);
+        assert!(ds1302.halted);
+
+        ds1302.tick_ns(NS_PER_SECOND);
+
+        assert_eq!(ds1302.second, 0);
+        assert_eq!(ds1302.read_register(), 0x80);
+    }
+
+    #[test]
+    fn clearing_ch_via_second_write_resumes_counting() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0x80,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x80);
+        assert!(ds1302.halted);
+        assert_eq!(ds1302.second, 0);
+
+        ds1302.write_register(0, 0x25);
+        assert!(!ds1302.halted);
+        assert_eq!(ds1302.second, 25);
+        assert_eq!(ds1302.read_register(), 0x25);
+
+        ds1302.tick_ns(NS_PER_SECOND);
+
+        assert_eq!(ds1302.second, 26);
+        assert_eq!(ds1302.read_register(), 0x26);
+    }
+
+    #[test]
+    fn wp_bit_blocks_clock_writes_until_cleared() {
+        let mut ds1302 = Ds1302 {
+            current_reg: 0x80,
+            ..Ds1302::default()
+        };
+
+        ds1302.write_register(0, 0x80);
+        assert_eq!(ds1302.second, 0);
+        assert!(ds1302.halted);
+
+        ds1302.current_reg = 0x8E;
+        ds1302.write_register(0, 0x80);
+        assert!(ds1302.write_protect);
+
+        ds1302.current_reg = 0x80;
+        ds1302.write_register(0, 0x45);
+        assert_eq!(ds1302.second, 0);
+        assert!(ds1302.halted);
+
+        ds1302.current_reg = 0x8E;
+        ds1302.write_register(0, 0x00);
+        assert!(!ds1302.write_protect);
+
+        ds1302.current_reg = 0x80;
+        ds1302.write_register(0, 0x45);
+        assert_eq!(ds1302.second, 45);
+        assert!(!ds1302.halted);
+    }
+
+    #[test]
+    fn rolls_date_across_year_boundary() {
+        let mut ds1302 = Ds1302 {
+            hour: 23,
+            minute: 59,
+            second: 59,
+            day_of_week: 7,
+            date: 31,
+            month: 12,
+            year: 99,
+            halted: false,
+            sub_ns: NS_PER_SECOND - 1,
+            ..Ds1302::default()
+        };
+
+        ds1302.tick_ns(1);
+
+        assert_eq!(ds1302.hour, 0);
+        assert_eq!(ds1302.minute, 0);
+        assert_eq!(ds1302.second, 0);
+        assert_eq!(ds1302.day_of_week, 1);
+        assert_eq!(ds1302.date, 1);
+        assert_eq!(ds1302.month, 1);
+        assert_eq!(ds1302.year, 0);
+    }
+
+    #[test]
+    fn wave_disabled_does_not_buffer_events() {
+        let mut ds1302 = Ds1302::new(false);
+        ds1302.current_reg = 0x80;
+        ds1302.write_register(0, 0x25);
+
+        assert!(ds1302.take_event_notes().is_empty());
+    }
+
+    #[test]
+    fn set_state_updates_calendar_and_control_flags() {
+        let mut ds1302 = Ds1302 {
+            sub_ns: 123_456_789,
+            ..Ds1302::default()
+        };
+
+        ds1302
+            .set_state(Ds1302State {
+                hour: Some(23),
+                minute: Some(58),
+                second: Some(57),
+                day_of_week: Some(6),
+                date: Some(28),
+                month: Some(12),
+                year: Some(24),
+                halted: Some(true),
+                hour_mode_12: Some(true),
+                write_protect: Some(true),
+                trickle_charge: Some(0xA5),
+            })
+            .expect("apply rtc state");
+
+        assert_eq!(ds1302.hour, 23);
+        assert_eq!(ds1302.minute, 58);
+        assert_eq!(ds1302.second, 57);
+        assert_eq!(ds1302.day_of_week, 6);
+        assert_eq!(ds1302.date, 28);
+        assert_eq!(ds1302.month, 12);
+        assert_eq!(ds1302.year, 24);
+        assert!(ds1302.halted);
+        assert!(ds1302.hour_mode_12);
+        assert!(ds1302.write_protect);
+        assert_eq!(ds1302.trickle_charge, 0xA5);
+        assert_eq!(ds1302.sub_ns, 0);
+    }
+}

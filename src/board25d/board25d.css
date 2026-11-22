@@ -1,0 +1,112 @@
+.b25 {
+  --b25-ground: #20262c;
+  --b25-panel: #28323b;
+  --b25-text: #edf3f7;
+  --b25-muted: #c2ced8;
+  --b25-line: #566673;
+  --b25-focus: #89caff;
+  width: 100%;
+  min-width: 0;
+  color: var(--b25-text);
+  background: var(--b25-ground);
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.b25 *, .b25-popover * { box-sizing: border-box; }
+.b25 button, .b25-popover button {
+  min-height: 32px;
+  border: 1px solid #566673;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: #edf3f7;
+  background: #303c46;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.b25 button:hover, .b25-popover button:hover { background: #41525f; }
+.b25 button:disabled { opacity: 0.45; cursor: default; }
+.b25 button:focus-visible, .b25-popover :focus-visible { outline: 2px solid #89caff; outline-offset: 3px; }
+.b25 ::selection, .b25-popover ::selection { color: #101820; background: #a5d7ff; }
+.b25-tools { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 6px; padding: 8px; }
+.b25-tools output { margin-right: auto; padding: 0 4px; font-size: 12px; color: var(--b25-muted); }
+.b25-viewport { position: relative; width: 100%; overflow: hidden; touch-action: none; isolation: isolate; cursor: grab; }
+.b25-viewport:active { cursor: grabbing; }
+.b25-stage { width: 100%; height: 100%; transform-origin: 0 0; position: absolute; inset: 0; }
+.b25-stage canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+.b25 .b25-part {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.b25 .b25-part:hover { background: rgb(137 202 255 / 8%); border-color: rgb(137 202 255 / 50%); }
+.b25 .b25-part:focus-visible { background: rgb(137 202 255 / 10%); outline-offset: 2px; }
+.b25 .b25-part-ldr.b25-held, .b25 .b25-part-thermo.b25-held { border-color: #e8b77d; }
+.b25 .b25-part-dial { cursor: ew-resize; border-radius: 50%; }
+.b25 .b25-part-obstacle { cursor: ew-resize; }
+.b25 .b25-part-obstacle.b25-absent { border: 1px dashed #9cabba; background: rgb(32 38 44 / 45%); }
+.b25-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 24px; overflow-wrap: anywhere; }
+.b25-sound-error { color: #ffc9bc; font-size: 12px; }
+.b25-hold-time {
+  position: absolute;
+  z-index: 1;
+  width: 58px;
+  height: 18px;
+  border: 1px solid var(--b25-line);
+  border-radius: 3px;
+  background: var(--b25-panel);
+  color: var(--b25-text);
+  font: 11px/16px "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  pointer-events: none;
+}
+.b25-popover {
+  position: fixed;
+  inset: auto;
+  width: min(280px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #687c8c;
+  border-radius: 6px;
+  color: #edf3f7;
+  background: #28323b;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+  color-scheme: dark;
+  font: 14px/1.5 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  scrollbar-color: #7891a4 #28323b;
+}
+.b25-popover::backdrop { background: transparent; }
+.b25-popover header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.b25-popover h3 { margin: 0; font-size: 15px; }
+.b25-popover form, .b25-popover label { display: grid; gap: 8px; }
+.b25-popover label { font-size: 13px; color: #c2ced8; }
+.b25-popover input, .b25-popover select {
+  width: 100%; min-width: 0; min-height: 36px;
+  padding: 6px 8px; border: 1px solid #7891a4; border-radius: 3px;
+  background: #172029; color: #edf3f7; caret-color: #a5d7ff; font: inherit;
+}
+.b25-popover p { margin: 0; color: #ffc9bc; }
+.b25-precise-value { display: flex; justify-content: space-between; font-size: 12px; color: #c2ced8; }
+.b25-popover-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.b25-popover-actions button[type="submit"] { background: #315b78; border-color: #7fb5d8; }
+@media (prefers-reduced-motion: no-preference) {
+  .b25-popover { animation: b25-open 120ms cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes b25-open { from { translate: 0 4px; } to { translate: 0 0; } }
+}
+@media (max-width: 500px) {
+  .b25-tools { gap: 4px; padding: 6px; }
+  .b25-tools button { padding-inline: 7px; }
+}

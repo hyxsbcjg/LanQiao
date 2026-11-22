@@ -1,0 +1,31 @@
+.b25-test {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  padding: 16px;
+  color: #e7edf3;
+  background: #171c23;
+  color-scheme: dark;
+}
+
+.b25-test-header,
+.b25-test-values {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.b25-test h1 { font-size: 1.2rem; }
+.b25-test-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 8px; }
+.b25-test-controls label { min-width: 0; max-width: 100%; gap: 2px; }
+.b25-test-controls input { box-sizing: border-box; width: 280px; max-width: 100%; }
+.b25-test-session { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 8px 0; font-size: 0.875rem; }
+.b25-test-values dl { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 12px 0; }
+.b25-test-values dt { font-size: 0.8rem; color: #b8c6d3; }
+.b25-test-values dd { margin: 0; font-variant-numeric: tabular-nums; }
+.b25-test-values pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.75rem; }
+.b25-test-values summary { cursor: pointer; }
+
+@media (max-width: 500px) {
+  .b25-test { padding: 10px; }
+  .b25-test-controls label { flex-basis: 100%; }
+}
